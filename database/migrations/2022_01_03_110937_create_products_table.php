@@ -22,7 +22,7 @@ class CreateProductsTable extends Migration
             $table->decimal('weight', 8, 2)->nullable();
             $table->decimal('price', 8, 2)->nullable();
             $table->decimal('sale_price', 8, 2)->nullable();
-            $table->boolean('is_acitve')->default(1);
+            $table->boolean('is_active')->default(1);
             $table->boolean('is_featured')->default(0);
             $table->string('tags')->nullable();
             $table->string('meta_title')->nullable(); //SEO Field

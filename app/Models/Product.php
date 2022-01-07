@@ -18,7 +18,7 @@ class Product extends Model
         'weight',
         'price',
         'sale_price',
-        'is_acitve',
+        'is_active',
         'is_featured',
         'tags',
         'meta_title',

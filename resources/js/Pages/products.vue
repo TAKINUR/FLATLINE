@@ -2,37 +2,21 @@
     <app-layout title="Products">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                List of Products
+                List of Products &nbsp;
+                <button @click.prevent="openModal()" class="text-green-500">
+                    Add New Product
+                </button>
             </h2>
         </template>
         <!-- Table -->
         <section class="container mx-auto p-6 font-mono">
             <!--ALERT Success -->
-            <div class="wrapper">
+            <div class="wrapper" v-if="$page.flash">
                 <div
-                    class="
-                        alert
-                        flex flex-row
-                        items-center
-                        bg-green-200
-                        p-3
-                        rounded
-                        border-b-2 border-green-300
-                    "
+                    class="alert flex flex-row items-center bg-green-200 p-3 rounded border-b-2 border-green-300"
                 >
                     <div
-                        class="
-                            alert-icon
-                            flex
-                            items-center
-                            bg-green-100
-                            border-2 border-green-500
-                            justify-center
-                            h-10
-                            w-10
-                            flex-shrink-0
-                            rounded-full
-                        "
+                        class="alert-icon flex items-center bg-green-100 border-2 border-green-500 justify-center h-10 w-10 flex-shrink-0 rounded-full"
                     >
                         <span class="text-green-500">
                             <svg
@@ -50,16 +34,12 @@
                     </div>
                     <div class="alert-content ml-4">
                         <div
-                            class="
-                                alert-title
-                                font-semibold
-                                text-lg text-green-800
-                            "
+                            class="alert-title font-semibold text-lg text-green-800"
                         >
                             Success
                         </div>
                         <div class="alert-description text-sm text-green-600">
-                            This is an alert message, alert message goes here..!
+                            {{ $page.flash.message }}
                         </div>
                     </div>
                 </div>
@@ -70,21 +50,13 @@
                     <table class="w-full">
                         <thead>
                             <tr
-                                class="
-                                    text-md
-                                    font-semibold
-                                    tracking-wide
-                                    text-left text-gray-900
-                                    bg-gray-100
-                                    uppercase
-                                    border-b border-gray-600
-                                "
+                                class="text-md font-semibold tracking-wide text-left text-gray-900 bg-gray-100 uppercase border-b border-gray-600"
                             >
                                 <th class="py-3">ID</th>
                                 <th class="px-4 py-3">Name</th>
-                                <th class="px-4 py-3">Age</th>
+                                <th class="px-4 py-3">Price</th>
                                 <th class="px-4 py-3">Status</th>
-                                <th class="px-4 py-3">Date</th>
+                                <th class="px-4 py-3">Quantity</th>
                                 <th class="px-4 py-3">Actions</th>
                             </tr>
                         </thead>
@@ -101,46 +73,26 @@
                                     {{ row.name }}
                                 </td>
                                 <td
-                                    class="
-                                        px-4
-                                        py-3
-                                        text-ms
-                                        font-semibold
-                                        border
-                                    "
+                                    class="px-4 py-3 text-ms font-semibold border"
                                 >
-                                    22
+                                    {{ row.price }}
                                 </td>
                                 <td class="px-4 py-3 text-xs border">
                                     <span
-                                        class="
-                                            px-2
-                                            py-1
-                                            font-semibold
-                                            leading-tight
-                                            text-green-700
-                                            bg-green-100
-                                            rounded-sm
-                                        "
+                                        class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-sm"
                                     >
-                                        Acceptable
+                                        {{ row.is_active }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-sm border">
-                                    6/4/2000
+                                    {{ row.quantity }}
                                 </td>
                                 <td class="py-3 px-6 text-center border">
                                     <div
                                         class="flex item-center justify-center"
                                     >
                                         <div
-                                            class="
-                                                w-4
-                                                mr-2
-                                                transform
-                                                hover:text-purple-500
-                                                hover:scale-110
-                                            "
+                                            class="w-4 mr-2 transform hover:text-purple-500 hover:scale-110"
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -162,14 +114,8 @@
                                                 />
                                             </svg>
                                         </div>
-                                        <div
-                                            class="
-                                                w-4
-                                                mr-2
-                                                transform
-                                                hover:text-purple-500
-                                                hover:scale-110
-                                            "
+                                        <div @click="edit(row)"
+                                            class="w-4 mr-2 transform hover:text-purple-500 hover:scale-110"
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -185,14 +131,8 @@
                                                 />
                                             </svg>
                                         </div>
-                                        <div
-                                            class="
-                                                w-4
-                                                mr-2
-                                                transform
-                                                hover:text-purple-500
-                                                hover:scale-110
-                                            "
+                                        <div @click="deleteRow(row)"
+                                            class="w-4 mr-2 transform hover:text-purple-500 hover:scale-110"
                                         >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -215,6 +155,137 @@
                     </table>
                 </div>
             </div>
+            <!--Modal -->
+            <div
+                class="fixed z-10 inset-0 overflow-y-auto ease-out duration-400"
+                v-if="isOpen"
+            >
+                <div
+                    class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+                >
+                    <div class="fixed inset-0 transition-opacity">
+                        <div
+                            @click="closeModal()"
+                            class="absolute inset-0 bg-gray-500 opacity-75"
+                        ></div>
+                    </div>
+                    <!-- This element is to trick the browser into centering the modal contents. -->
+                    <span
+                        class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                    ></span
+                    >​
+                    <div
+                        class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="modal-headline"
+                    >
+                        <form @submit.prevent="submit">
+                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div class="">
+                                    <div class="mb-4">
+                                        <label
+                                            for="exampleFormControlInput1"
+                                            class="block text-gray-700 text-sm font-bold mb-2"
+                                            >Name:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                            id="exampleFormControlInput1"
+                                            placeholder="Enter product name"
+                                            v-model="form.name"
+                                        />
+                                        <!--
+                                        <div
+                                            v-if="$page.errors.name"
+                                            class="text-red-500"
+                                        >
+                                            {{ $page.errors.name[0] }}
+                                        </div> -->
+                                    </div>
+                                    <div class="mb-4">
+                                        <label
+                                            for="exampleFormControlInput1"
+                                            class="block text-gray-700 text-sm font-bold mb-2"
+                                            >Quantity:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                            id="exampleFormControlInput1"
+                                            placeholder="Enter product name"
+                                            v-model="form.quantity"
+                                        />
+                                        <!--
+                                        <div
+                                            v-if="$page.errors.name"
+                                            class="text-red-500"
+                                        >
+                                            {{ $page.errors.name[0] }}
+                                        </div> -->
+                                    </div>
+                                    <div class="mb-4">
+                                        <label
+                                            for="exampleFormControlInput2"
+                                            class="block text-gray-700 text-sm font-bold mb-2"
+                                            >Price:</label
+                                        >
+                                        <textarea
+                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                            id="exampleFormControlInput2"
+                                            v-model="form.price"
+                                            placeholder="Enter Price"
+                                        ></textarea>
+                                        <div class="text-red-500"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"
+                            >
+                                <span
+                                    class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto"
+                                >
+                                    <button
+                                        wire:click.prevent="store()"
+                                        type="button"
+                                        class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-green-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                                        v-show="!editMode"
+                                        @click="save(form)"
+                                    >
+                                        Save
+                                    </button>
+                                </span>
+                                <span
+                                    class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto"
+                                >
+                                    <button
+                                        wire:click.prevent="store()"
+                                        type="button"
+                                        class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-green-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                                        v-show="editMode"
+                                        @click="update(form)"
+                                    >
+                                        Update
+                                    </button>
+                                </span>
+                                <span
+                                    class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto"
+                                >
+                                    <button
+                                        @click="closeModal()"
+                                        type="button"
+                                        class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
+                                    >
+                                        Cancel
+                                    </button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </section>
     </app-layout>
 </template>
@@ -234,15 +305,17 @@ export default defineComponent({
         return {
             editMode: false,
             isOpen: false,
-            form: {
-                name: null,
-                price: null,
-            },
+            form: this.$inertia.form({
+                name: "",
+                price: "",
+                quantity: "",
+            }),
         };
     },
     methods: {
         openModal: function () {
             this.isOpen = true;
+            // console.log('open');
         },
         closeModal: function () {
             this.isOpen = false;
@@ -257,9 +330,9 @@ export default defineComponent({
         },
         save: function (data) {
             this.$inertia.post("/products", data);
-            this.reset();
-            this.closeModal();
-            this.editMode = false;
+            // this.reset();
+            // this.closeModal();
+            // this.editMode = false;
         },
         edit: function (data) {
             this.form = Object.assign({}, data);

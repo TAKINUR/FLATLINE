@@ -16,7 +16,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $data = Product::all();
+        $data = Product::orderByDesc('created_at')->get();
         return Inertia::render('products', ['data' => $data]);
     }
 
@@ -29,7 +29,6 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         //Validation
-
         // Product::create($request->all());
         $product = new Product($request->all());
         $product->save();
